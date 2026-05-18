@@ -19,9 +19,14 @@ class MCP4725:
         if not (0 <= number <= 4095):
             print("Число выходит за разраядность MCP4752 (12 бит)")
 
-        first_byte = self.wm | self.pds | number >> 8
+
+        #data = [0x40 | ((number >> 8) & 0x0F), number & 0xFF ]
+
+        first_byte = 0x40 | ((number >> 8) & 0xFF)
+
+        #first_byte = self.wm | self.pds | number >> 8
         second_byte = number & 0xFF
-        self.bus.write_byte_data(0x61, first_byte, second_byte)
+        self.bus.write_i2c_block_data(self.address, first_byte, [second_byte])
 
         if self.verbose:
             print(f"Число: {number}, отправленные по I2C данные: [0x{(self.address << 1):02X}, 0x{first_byte:02X}, 0x{second_byte:02X}]\n")
